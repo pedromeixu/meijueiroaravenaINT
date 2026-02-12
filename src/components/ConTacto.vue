@@ -4,8 +4,44 @@
       <i class="bi bi-envelope-paper me-2"></i> Formulario de Contacto
     </h3>
 
+    <!-- Vista previa del formulario -->
+    <div
+      class="modal fade show"
+      tabindex="-1"
+      style="display: block; background: rgba(0, 0, 0, 0, 5)"
+      v-if="mostrarPreview"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title">
+              <i class="bi bi-eye-fill me-2"></i>Vista previa del mensaje
+            </h5>
+            <button type="button" class="btn-close" @click="mostrarPreview = false"></button>
+          </div>
+
+          <div class="modal-body">
+            <p><strong>Nombre:</strong>{{form.nombre}}</p>
+            <p><strong>Email:</strong>{{form.email}}</p>
+            <p><strong>Asunto:</strong>{{form.asunto}}</p>
+            <p><strong>Mensaje:</strong></p>
+            <p class="border p-2 rounded bg-light">{{form.mensaje}}</p>
+          </div>
+
+          <div class="modal-footer">
+            <button class="btn btn-secondary" @click="mostrarPreview = false">
+              Cancelar
+            </button>
+            <button class="btn btn-success" @click="confirmarYEnviar">
+              <i class="bi bi-send-check me-1"></i> Confirmar y Enviar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Formulario de contacto -->
-    <form @submit.prevent="enviarMensaje" class="mb-4">
+    <form @submit.prevent="confirmarEnvio" class="mb-4">
       <div class="row g-3">
         <div class="col-md-6">
           <label for="nombre" class="form-label">Nombre:</label>
@@ -103,7 +139,18 @@ const form = reactive({
   mensaje: "",
 });
 
+const mostrarPreview = ref(false);
+
 const enviando = ref(false);
+
+function confirmarEnvio() {
+  mostrarPreview.value = true;
+}
+
+async function confirmarYEnviar() {
+  mostrarPreview.value = false;
+  await enviarMensaje();
+}
 
 async function enviarMensaje() {
   if (enviando.value) return;

@@ -141,6 +141,7 @@
           <th>MovilEmail</th>
           <th>ServicioTaller</th>
           <th>EstadoCita</th>
+          <th>Acepta</th>
           <th>Acciones</th>
         </tr>
       </thead>
@@ -152,6 +153,14 @@
           <td>{{ modelo.movilCliente }}</td>
           <td>{{ modelo.servicioTaller }}</td>
           <td>{{ modelo.estadoCita }}</td>
+          <!-- Solo se muestra el campo si acepta == true -->
+          <td>
+            <i
+              v-if="modelo.acepta"
+              class="bi bi-check-circle-fill text-success"
+              title="Acepta presupuesto"
+            ></i>
+          </td>
           <td class="align-middle text-center">
             <!-- Botón para eliminar un modelo -->
             <button

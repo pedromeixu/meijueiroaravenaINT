@@ -81,6 +81,18 @@ export const useCestaStore = defineStore('cesta', {
         // Alias para vaciar la cesta
         vaciarCesta() {
             this.clearCesta()
+        },
+
+        aplicarDescuentoToyota() {
+            this.items = this.items.map((item) => {
+                if (item.nombre.toLowerCase().includes("toyota")) {
+                    return {
+                        ...item,
+                        precio: Number((item.precio * 0.9).toFixed(2))
+                    }
+                }
+                return item;
+            })
         }
     }
 })

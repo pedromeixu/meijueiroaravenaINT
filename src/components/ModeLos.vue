@@ -370,6 +370,22 @@
       </div>
     </form>
 
+    <div class="alert alert-info fw-semibold mb-4" v-if="vehiculos.length > 0">
+      <h5 class="mb-2">
+        <i class="bi bi-tags-fill me-2"></i>Vehículos por marca
+      </h5>
+
+      <div class="d-flex flex-wrap gap-3">
+        <span
+          v-for="(cantidad, marca) in vehiculosPorMarca"
+          :key="marca"
+          class="badge bg-primary p-2"
+        >
+          {{marca}}: {{cantidad}}
+        </span>
+      </div>
+    </div>
+
     <!-- TABLA DE VEHÍCULOS -->
     <div class="mt-5" v-if="vehiculos.length > 0">
       <h5 class="text-center mb-3 fw-semibold text-primary border-bottom pb-2">
@@ -386,6 +402,7 @@
               <th class="text-center">Modelo</th>
               <th class="text-center">Estado</th>
               <th class="text-center">Contacto</th>
+              <th class="text-center">Precio</th>
               <th class="text-center">Acciones</th>
             </tr>
           </thead>
@@ -411,10 +428,20 @@
                 <small class="text-muted">{{ item.contacto.telefono }}</small>
               </td>
               <td class="text-center">
+                <span
+                  :class="{
+                    'bg-danger' : item.precio > 20000
+                  }">
+                  {{item.precio}} €
+                </span>
+              </td>
+              <td class="text-center">
                 <button
                   class="btn btn-sm btn-warning me-2"
                   @click="cargarVehiculo(item)"
                   title="Editar vehículo"
+                  :disabled="item.estado !== 'disponible'"
+                  :class="{'opacity-50 cursor-not-allowed': item.estado !== 'disponible'}"
                 >
                   <i class="bi bi-pencil-square"></i>
                 </button>
@@ -422,6 +449,8 @@
                   class="btn btn-sm btn-danger"
                   @click="eliminarVehiculo(item._id)"
                   title="Eliminar vehículo"
+                  :disabled="item.estado !== 'disponible'"
+                  :class="{'opacity-50 cursor-not-allowed': item.estado !== 'disponible'}"
                 >
                   <i class="bi bi-trash"></i>
                 </button>
@@ -481,6 +510,23 @@ const aniosDisponibles = computed(() => {
   }
   return anios;
 });
+
+const vehiculosPorMarca = computed(() => {
+  const conteo = {};
+
+  vehiculos.value.forEach((v) => {
+    if (!v.marca) {
+      return;
+    }
+    const marca = v.marca.trim();
+    if (!conteo[marca]) {
+      conteo[marca] = 0;
+      conteo[marca]++;
+    }
+  });
+
+  return conteo;
+})
 
 // Cargar vehículos al montar el componente
 onMounted(async () => {

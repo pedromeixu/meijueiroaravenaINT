@@ -209,7 +209,7 @@
 
 </template>
 <script setup>
-import { ref, onMounted} from "vue";
+import { ref, onMounted, computed } from "vue";
 import Swal from "sweetalert2";
 import { getModelos, addCModelo, updateModelo, deleteModelo } from "../api/modelos";
 
