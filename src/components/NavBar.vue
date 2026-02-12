@@ -3,7 +3,7 @@
     <div class="container-fluid">
       <!-- Marca o logo -->
       <a class="navbar-brand d-flex align-items-center" href="/">
-        <img src="/dibujo.svg" alt="Logo EmpresaTeis" class="brand-logo me-2" />
+        <img src="/src/assets/dibujo.svg" alt="Logo EmpresaTeis" class="brand-logo me-2" />
       </a>
 
       <!-- Botón de hamburguesa en pantallas pequeñas -->
