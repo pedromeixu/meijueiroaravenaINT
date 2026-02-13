@@ -50,7 +50,19 @@
           -->
           <li class="nav-item" v-if="isAdmin">
             <router-link class="nav-link" to="/taller">Taller</router-link>
-          </li>  
+          </li>
+          <li class="nav-item" v-if="!isAdmin">
+            <router-link class="nav-link" to="/empleo">Empleo</router-link>
+          </li>
+          <li class="nav-item" v-if="isAdmin">
+            <router-link class="nav-link" to="/solicitudes">Solicitudes</router-link>
+          </li>
+          <li class="nav-item" v-if="isUsuario">
+            <router-link class="nav-link" to="/gestion-reservas">Mis Reservas</router-link>
+          </li>
+          <li class="nav-item" v-if="isAdmin">
+            <router-link class="nav-link" to="/gestion-reservas">Gestión de Reservas</router-link>
+          </li>
           <li class="nav-item">
             <router-link class="nav-link" to="/contacto">Contacto</router-link>
           </li>

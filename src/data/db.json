@@ -527,6 +527,22 @@
       "tipoCliente": "on",
       "password": "$2b$10$jtF9elPw/.M.zM86lFoaaeo95AX8X4ByX1nfmaInbe8gapclXfbTe",
       "passwordConfirm": "abc123"
+    },
+    {
+      "id": "9e7f",
+      "dni": "54507787H",
+      "nombre": "Pedro",
+      "apellidos": "Meijueiro Aravena",
+      "email": "pedromeixu44@gmail.com",
+      "movil": "675584160",
+      "direccion": "Rúa De Venezuela, 24, 4º A",
+      "provincia": "Pontevedra",
+      "municipio": "",
+      "fechaAlta": "",
+      "historico": false,
+      "lopd": true,
+      "password": "$2b$10$ZXH9gNWXgrIZ1FTceiOEZOfbbTHNHN5XgP6Ssj.X/M01PZHm1XMpW",
+      "passwordConfirm": "renaido"
     }
   ],
   "noticias": [
@@ -704,6 +720,15 @@
       "movilCliente": "pedromeixu44@gmail.com",
       "fechaAlta": "2026-02-12",
       "servicioTaller": "preITV",
+      "estadoCita": "Pendiente",
+      "acepta": true
+    },
+    {
+      "id": "1",
+      "matricula": "3919GPX",
+      "movilCliente": "pedromeixu44@gmail.com",
+      "fechaAlta": "2026-02-13",
+      "servicioTaller": "revision",
       "estadoCita": "Pendiente",
       "acepta": true
     }

@@ -32,6 +32,7 @@ import { onMounted, onBeforeUnmount, ref } from "vue";
 import { useCestaStore } from "@/store/cesta.js";
 import { addFactura } from "@/api/facturas.js";
 import logo from "../../public/dibujo.png"; // Logo de la empresa
+import axios from "axios";
 
 const cesta = useCestaStore();
 const cartItems = ref([]);
@@ -40,34 +41,57 @@ const numeroFactura = ref(Math.floor(Math.random() * 1000000));
 
 // Obtener los ítems del carrito desde localStorage (guardados antes del pago)
 onMounted(async () => {
-  // Intentar recuperar los datos de la última compra desde localStorage
-  const ultimaCompra = localStorage.getItem("ultimaCompra");
+  // Recuperar la última compra guardada antes de ir a Stripe
+  const ultimaCompra = JSON.parse(localStorage.getItem("ultimaCompra"));
 
-  if (ultimaCompra) {
-    const compraData = JSON.parse(ultimaCompra);
-    cartItems.value = compraData.items;
-    totalPrice.value = compraData.total;
+  if (ultimaCompra && ultimaCompra.items) {
+
+    // Cargar datos de la compra
+    cartItems.value = ultimaCompra.items;
+    totalPrice.value = ultimaCompra.total;
 
     console.log("✅ Items recuperados de la compra:", cartItems.value);
     console.log("✅ Total de la compra:", totalPrice.value);
 
     // Guardar factura en la base de datos
     await guardarFacturaEnBD();
+
+    // Marcar coches como vendidos en el backend
+    for (const item of ultimaCompra.items) {
+      await axios.patch(`http://localhost:5000/api/articulos/${item.id}`, {
+        estado: "vendido"
+      });
+    }
+
+    // Limpiar datos temporales
+    localStorage.removeItem("ultimaCompra");
+
   } else if (cesta.items.length > 0) {
-    // Fallback: si aún hay items en el store (no se vació)
+
+    // Fallback: si por alguna razón la cesta no se vació
     cartItems.value = JSON.parse(JSON.stringify(cesta.items));
     totalPrice.value = cesta.totalPrecio;
-    console.log("✅ Items obtenidos del store:", cartItems.value);
 
-    // Guardar factura en la base de datos
+    console.log("⚠️ Items obtenidos del store:", cartItems.value);
+
+    // Guardar factura en BD
     await guardarFacturaEnBD();
+
+    // Marcar coches como vendidos
+    for (const item of cesta.items) {
+      await axios.patch(`http://localhost:5000/api/articulos/${item.id}`, {
+        estado: "vendido"
+      });
+    }
+
   } else {
     console.warn("⚠️ No se encontraron datos de compra");
   }
 
-  // Vaciar el carrito ahora que ya tenemos los datos guardados
+  // Vaciar la cesta ahora que ya se procesó todo
   cesta.vaciarCesta();
 });
+
 
 // Función para guardar la factura en la base de datos MongoDB
 const guardarFacturaEnBD = async () => {

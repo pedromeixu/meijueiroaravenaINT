@@ -6,15 +6,21 @@ const API_URL = "http://localhost:3000/taller";
  * Obtener todas las citas de taller
  * @returns {Array} Lista de noticias desde la API
  */
-export const getCitas = async () => {
-    try {
-        const res = await axios.get(`${API_URL}?_sort=entrega&_order=asc`);
-        return res.data;
-    } catch (error) {
-        console.error("❌ Error al obtener las citas:", error);
-        throw error;
+export async function getCitas() {
+  try {
+    const res = await axios.get(API_URL);
+    // Aseguramos que siempre sea un array
+    if (Array.isArray(res.data)) {
+      return res.data;
+    } else {
+      console.warn("getCita: La API no devolvió un array, usando fallback vacío");
+      return [];
     }
-};
+  } catch (error) {
+    console.error("Error al conseguir las citas:", error);
+  }
+}
+
 
 /**
  * Añadir una nueva cita

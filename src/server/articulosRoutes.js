@@ -97,6 +97,34 @@ router.post("/", upload.single('imagen'), async (req, res) => {
   }
 });
 
+// PATCH para actualizar solo el estado del artículo (reservado / vendido)
+router.patch("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { estado } = req.body;
+
+    if (!estado) {
+      return res.status(400).json({ error: "El campo 'estado' es obligatorio" });
+    }
+
+    const articuloActualizado = await Articulo.findByIdAndUpdate(
+      id,
+      { estado },
+      { new: true }
+    );
+
+    if (!articuloActualizado) {
+      return res.status(404).json({ error: "Artículo no encontrado" });
+    }
+
+    res.json(articuloActualizado);
+
+  } catch (error) {
+    console.error("Error en PATCH /api/articulos/:id:", error);
+    res.status(500).json({ error: "Error interno del servidor" });
+  }
+});
+
 // otras rutas PUT, DELETE, GET /:id igual
 
 export default router;

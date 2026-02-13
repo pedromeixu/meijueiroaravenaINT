@@ -17,6 +17,9 @@ import { loginUsuario, esAdmin  } from "../api/authApi";
 import CesTa from "../components/CesTa.vue";
 import TablaSuccess from "../components/TablaSuccess.vue";
 import TablaCanceL from "../components/TablaCanceL.vue";
+import Empleo from "../components/Empleo.vue";
+import Solicitudes from "../components/Solicitudes.vue";
+import GestionReservas from "../components/GestionReservas.vue";
 
 const routes = [
     {
@@ -106,9 +109,26 @@ const routes = [
         path: '/cancel',
         name: 'TablaCanceL',
         component: TablaCanceL,
-    }
+    },
+    {
+        path: "/empleo",
+        name: "Empleo",
+        component: Empleo,
+        meta: { requiresNoAdmin: true },
+    },
+    {
+        path: "/solicitudes",
+        name: "Solicitudes",
+        component: Solicitudes,
+        meta: { requiresAdmin: true },
+    },
+    {
+        path: "/gestion-reservas",
+        name: "GestionReservas",
+        component: GestionReservas,
+    },
+];
 
-]
 const router = createRouter({
     history: createWebHistory(),
     routes

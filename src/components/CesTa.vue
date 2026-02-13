@@ -17,10 +17,12 @@
             <th></th>
           </tr>
         </thead>
+
         <tbody>
           <tr v-for="item in cesta.items" :key="item.id">
             <td>{{ item.nombre }}</td>
-            <td>{{ item.precio }}</td>
+            <td>{{ item.precio }}€</td>
+
             <td>
               <button
                 class="btn btn-sm btn-outline-secondary me-1"
@@ -28,7 +30,9 @@
               >
                 -
               </button>
+
               {{ item.cantidad }}
+
               <button
                 class="btn btn-sm btn-outline-secondary ms-1"
                 @click="incrementar(item.id)"
@@ -36,7 +40,9 @@
                 +
               </button>
             </td>
-            <td>{{ item.precio * item.cantidad }}</td>
+
+            <td>{{ (item.precio * item.cantidad).toFixed(2) }}€</td>
+
             <td>
               <button
                 class="btn btn-sm btn-danger"
@@ -47,49 +53,68 @@
             </td>
           </tr>
         </tbody>
+
         <tfoot>
           <tr class="fw-bold">
-            <td colspan="3" class="text-end">Total:</td>
+            <td colspan="3" class="text-end">Totales:</td>
             <td>
+
+              <!-- TOTAL CON O SIN DESCUENTO -->
               <div v-if="descuentoAplicado">
                 <span class="text-decoration-line-through text-danger">
-                  {{ cesta.totalPrecio.toFixed(2) }}€
+                  {{ cesta.totalPrecio.toFixed(2) }} €
                 </span>
                 <br>
                 <strong class="text-success">
-                  {{totalConDescuento.toFixed(2) }}€
+                  {{ totalConDescuento.toFixed(2) }} €
                 </strong>
               </div>
 
               <div v-else>
-                {{ cesta.totalPrecio.toFixed(2) }}€
+                {{ cesta.totalPrecio.toFixed(2) }} €
               </div>
+
+              <!-- GASTOS DE ENVÍO -->
+              <div class="mt-2 text-primary">
+                Gastos de envío (5%): {{ gastosEnvio.toFixed(2) }} €
+              </div>
+
+              <!-- TOTAL FINAL -->
+              <div class="mt-1 fs-5 fw-bold">
+                Total final: {{ totalFinal.toFixed(2) }} €
+              </div>
+
             </td>
+
             <td>
-              <!-- BOTÓN DESCUENTO-->
+              <!-- BOTÓN DESCUENTO TOYOTA -->
               <button
-              v-if="!descuentoAplicado"
-              class="btn btn-warning btn-sm"
-              @click="aplicarDescuentoToyota"
+                v-if="!descuentoAplicado"
+                class="btn btn-warning btn-sm"
+                @click="aplicarDescuentoToyota"
               >
-              Descuento Toyota
+                Descuento Toyota
               </button>
+
+              <!-- CUPÓN -->
               <div class="d-flex align-items-center mt-2">
                 <input
                   type="text"
                   v-model="cupon"
                   placeholder="Código de cupón"
                   class="form-control form-control-sm w-50 me-2"
-                ></input>
+                >
                 <button
                   class="btn btn-info btn-sm"
                   @click="aplicarCupon"
                 >
-                Aplicar cupón
+                  Aplicar cupón
                 </button>
               </div>
+
+              <!-- BOTÓN PAGO -->
               <button
-                class="btn btn-success btn-sm justify-content-end mx-3"
+                class="btn btn-success btn-sm justify-content-end mx-3 mt-2"
                 @click="mostrarResumen = true"
               >
                 Pago
@@ -100,62 +125,89 @@
       </table>
     </div>
   </div>
-<!-- Modal de resumen de compra -->
-<div
-  class="modal fade show"
-  tabindex="-1"
-  style="display: block; background: rgba(0,0,0,0.5)"
-  v-if="mostrarResumen"
->
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
 
-      <div class="modal-header bg-primary text-white">
-        <h5 class="modal-title">
-          <i class="bi bi-receipt me-2"></i> Resumen de la compra
-        </h5>
-        <button type="button" class="btn-close" @click="mostrarResumen = false"></button>
+  <!-- MODAL RESUMEN DE COMPRA -->
+  <div
+    class="modal fade show"
+    tabindex="-1"
+    style="display: block; background: rgba(0,0,0,0.5)"
+    v-if="mostrarResumen"
+  >
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">
+            <i class="bi bi-receipt me-2"></i> Resumen de la compra
+          </h5>
+          <button type="button" class="btn-close" @click="mostrarResumen = false"></button>
+        </div>
+
+        <div class="modal-body">
+          <table class="table table-sm">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr v-for="item in cesta.items" :key="item.id">
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.precio }}€</td>
+                <td>{{ item.cantidad }}</td>
+                <td>{{ (item.precio * item.cantidad).toFixed(2) }}€</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- TOTAL + DESCUENTO + ENVÍO -->
+          <div class="mt-3 text-end">
+
+            <template v-if="descuentoAplicado">
+              <p class="text-danger text-decoration-line-through mb-0">
+                Total original: {{ cesta.totalPrecio.toFixed(2) }} €
+              </p>
+
+              <p class="text-success fw-bold mb-0">
+                Total con descuento: {{ totalConDescuento.toFixed(2) }} €
+              </p>
+            </template>
+
+            <template v-else>
+              <p class="fw-bold mb-0">
+                Total: {{ cesta.totalPrecio.toFixed(2) }} €
+              </p>
+            </template>
+
+            <p class="text-primary mb-0">
+              Gastos de envío (5%): {{ gastosEnvio.toFixed(2) }} €
+            </p>
+
+            <p class="fw-bold fs-4 mt-2">
+              Total final: {{ totalFinal.toFixed(2) }} €
+            </p>
+
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" @click="mostrarResumen = false">
+            Cancelar
+          </button>
+          <button class="btn btn-success" @click="confirmarPago">
+            Aceptar y pagar
+          </button>
+        </div>
+
       </div>
-
-      <div class="modal-body">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th>Producto</th>
-              <th>Precio</th>
-              <th>Cantidad</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="item in cesta.items" :key="item.id">
-              <td>{{ item.nombre }}</td>
-              <td>{{ item.precio }}€</td>
-              <td>{{ item.cantidad }}</td>
-              <td>{{ (item.precio * item.cantidad).toFixed(2) }}€</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <h5 class="text-end mt-3">
-          Total: <strong>{{ cesta.totalPrecio.toFixed(2) }}€</strong>
-        </h5>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn btn-secondary" @click="mostrarResumen = false">
-          Cancelar
-        </button>
-        <button class="btn btn-success" @click="confirmarPago">
-          Aceptar y pagar
-        </button>
-      </div>
-
     </div>
   </div>
-</div>
-
 </template>
+
 
 <script setup>
 import { ref, computed } from "vue"; 
@@ -221,7 +273,8 @@ const iniciarPago = async () => {
       "http://localhost:5000/create-checkout-session",
       {
         items: cesta.items,
-        amount: cesta.totalPrecio,
+        amount: totalConDescuento.value,
+        descuento: descuento.value,
       },
     );
 
@@ -265,6 +318,20 @@ const aplicarCupon = () => {
 const totalConDescuento = computed(() => {
   return cesta.totalPrecio - descuento.value;
 });
+
+const gastosEnvio = computed(() => {
+  const base = descuentoAplicado.value ? totalConDescuento.value : cesta.totalPrecio;
+
+  // Si supera 20.000€, envío gratis
+  if (base > 20000) return 0;
+
+  return base * 0.05;
+});
+
+
+const totalFinal = computed(() => {
+  return (descuentoAplicado.value ? totalConDescuento.value : cesta.totalPrecio) + gastosEnvio.value;
+})
 
 </script>
 

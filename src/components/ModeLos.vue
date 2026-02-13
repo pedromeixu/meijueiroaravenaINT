@@ -376,13 +376,74 @@
       </h5>
 
       <div class="d-flex flex-wrap gap-3">
-        <span
+        <button
           v-for="(cantidad, marca) in vehiculosPorMarca"
           :key="marca"
           class="badge bg-primary p-2"
+          style="cursor: pointer"
+          @click="descargarPDFMarca(marca)"
         >
-          {{marca}}: {{cantidad}}
-        </span>
+          {{ marca.charAt(0).toUpperCase() + marca.slice(1) }}: {{ cantidad }}
+      </button>
+      </div>
+    </div>
+    <!-- FILTROS DE MODELOS -->
+    <div class="container mb-4">
+      <h3 class="mb-3">Filtrar Modelos</h3>
+
+      <div class="row g-3">
+
+        <!-- Marca -->
+        <div class="col-12 col-md-3">
+          <label class="form-label">Marca</label>
+          <select v-model="filtroMarca" class="form-select">
+            <option value="">Todas</option>
+            <option v-for="m in marcasDisponibles" :key="m" :value="m">
+              {{ m }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Modelo -->
+        <div class="col-12 col-md-3">
+          <label class="form-label">Modelo</label>
+          <select v-model="filtroModelo" class="form-select">
+            <option value="">Todos</option>
+            <option v-for="mo in modelosDisponibles" :key="mo" :value="mo">
+              {{ mo }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Combustible -->
+        <div class="col-12 col-md-3">
+          <label class="form-label">Combustible</label>
+          <select v-model="filtroCombustible" class="form-select">
+            <option value="">Todos</option>
+            <option v-for="c in combustiblesDisponibles" :key="c" :value="c">
+              {{ c }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Transmisión -->
+        <div class="col-12 col-md-3">
+          <label class="form-label">Transmisión</label>
+          <select v-model="filtroTransmision" class="form-select">
+            <option value="">Todas</option>
+            <option v-for="t in transmisionesDisponibles" :key="t" :value="t">
+              {{ t }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Botón limpiar -->
+        <div class="col-12 text-end">
+          <button class="btn btn-secondary mt-2" @click="limpiarFiltros">
+            Limpiar filtros
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -407,7 +468,7 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(item, index) in vehiculos" :key="index">
+            <tr v-for="(item, index) in vehiculosFiltrados" :key="index">
               <td class="text-center">{{ item.matricula || "N/A" }}</td>
               <td>{{ item.marca }}</td>
               <td>{{ item.modelo }}</td>
@@ -497,6 +558,20 @@ const vehiculo = ref({
   estado: "disponible",
 });
 
+const modelos = ref([]);
+
+//Filtros
+const filtroMarca = ref("");
+const filtroModelo = ref("");
+const filtroCombustible = ref("");
+const filtroTransmision = ref("");
+
+//Listas dinámicas
+const marcasDisponibles = ref([]);
+const modelosDisponibles = ref([]);
+const combustiblesDisponibles = ref([]);
+const transmisionesDisponibles = ref([]);
+
 const editando = ref(false);
 const vehiculoEditandoId = ref(null);
 const vehiculos = ref([]);
@@ -514,24 +589,49 @@ const aniosDisponibles = computed(() => {
 const vehiculosPorMarca = computed(() => {
   const conteo = {};
 
-  vehiculos.value.forEach((v) => {
-    if (!v.marca) {
-      return;
-    }
-    const marca = v.marca.trim();
-    if (!conteo[marca]) {
-      conteo[marca] = 0;
-      conteo[marca]++;
-    }
+  vehiculos.value.forEach(v => {
+    if (!v.marca) return;
+
+    const marca = v.marca.trim().toLowerCase();
+
+    if (!marca) return;
+
+    if (!conteo[marca]) conteo[marca] = 0;
+    conteo[marca]++;
   });
 
   return conteo;
-})
+});
+
 
 // Cargar vehículos al montar el componente
 onMounted(async () => {
   await cargarVehiculos();
+
+  marcasDisponibles.value = [...new Set(vehiculos.value.map(v => v.marca))];
+  combustiblesDisponibles.value = [...new Set(vehiculos.value.map(v => v.combustible))];
+  modelosDisponibles.value = [...new Set(vehiculos.value.map(v => v.modelo))];
+  transmisionesDisponibles.value = [...new Set(vehiculos.value.map(v => v.transmision))];
 });
+
+const vehiculosFiltrados = computed(() => {
+  return vehiculos.value.filter(v => {
+    const okMarca = !filtroMarca.value || v.marca === filtroMarca.value;
+    const okModelo = !filtroModelo.value || v.modelo === filtroModelo.value;
+    const okCombustible = !filtroCombustible.value || v.combustible === filtroCombustible.value;
+    const okTransmision = !filtroTransmision.value || v.transmision === filtroTransmision.value;
+
+    return okMarca && okModelo && okCombustible && okTransmision;
+  });
+});
+
+
+const limpiarFiltros = () => {
+  filtroMarca.value = "";
+  filtroModelo.value = "";
+  filtroCombustible.value = "";
+  filtroTransmision.value = "";
+}
 
 // Función para cargar todos los vehículos
 const cargarVehiculos = async () => {
@@ -1031,4 +1131,64 @@ const imprimirTabla = () => {
     showConfirmButton: false,
   });
 };
+
+const descargarPDFMarca = (marca) => {
+  const doc = new jsPDF();
+
+  // Filtrar vehículos por marca seleccionada
+  const vehiculosFiltrados = vehiculos.value.filter(
+    v => v.marca && v.marca.trim().toLowerCase() === marca.trim().toLowerCase()
+  );
+
+  if (vehiculosFiltrados.length === 0) {
+    Swal.fire({
+      icon: "info",
+      title: "Sin vehículos",
+      text: `No hay vehículos registrados de la marca ${marca}.`
+    });
+    return;
+  }
+
+  // Título del PDF
+  doc.setFontSize(16);
+  doc.text(`Vehículos marca ${marca}`, 105, 15, { align: "center" });
+
+  // Preparar datos para la tabla
+  const tableData = vehiculosFiltrados.map(v => [
+    v.matricula || "N/A",
+    v.modelo,
+    v.anio,
+    v.estado,
+    `${v.contacto.nombre}\n${v.contacto.telefono}`,
+    `${v.precio} €`
+  ]);
+
+  // Generar tabla
+  doc.autoTable({
+    startY: 25,
+    head: [["Matrícula", "Modelo", "Año", "Estado", "Contacto", "Precio"]],
+    body: tableData,
+    theme: "striped",
+    headStyles: { fillColor: [13, 110, 253] },
+    styles: { fontSize: 10 },
+    columnStyles: {
+      0: { halign: "center" },
+      2: { halign: "center" },
+      3: { halign: "center" },
+      5: { halign: "center" }
+    }
+  });
+
+  // Descargar PDF
+  doc.save(`vehiculos_${marca}.pdf`);
+
+  Swal.fire({
+    icon: "success",
+    title: "PDF generado",
+    text: `Se ha descargado el listado de vehículos ${marca}.`,
+    timer: 2000,
+    showConfirmButton: false
+  });
+};
+
 </script>

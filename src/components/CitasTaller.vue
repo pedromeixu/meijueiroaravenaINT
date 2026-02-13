@@ -411,6 +411,4 @@ const validarEmail = () => {
 
 </script>
 <style scoped>
-
-
 </style>

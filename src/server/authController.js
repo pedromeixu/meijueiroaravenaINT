@@ -18,14 +18,17 @@ export const login = async (req, res) => {
 
         const token = jwt.sign(
             {
+                id: user.id,
                 dni: user.dni,
+                nombre: user.nombre,
+                email: user.email,
                 tipo: user.tipo || 'user'
             },
             process.env.JWT_SECRET,
             { expiresIn: '2h' }
         );
 
-        res.json({ token, nombre: user.nombre, tipo: user.tipo || 'user' });
+        res.json({ token, nombre: user.nombre, tipo: user.tipo || 'user', id: user.id, email: user.email });
     } catch (error) {
         console.log(error);
         res.status(500).json({ message: 'Error interno en el servidor' });
